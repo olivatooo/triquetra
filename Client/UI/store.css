@@ -1,0 +1,11 @@
+.centered_store {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+}
+
+.press_b {
+  position: fixed;
+  bottom: 0;
+  right: 1%;
+}
