@@ -103,74 +103,39 @@ Events.Subscribe("OnGoing", function()
     UI:CallEvent("Announce", "START!", "neutral_neon")
 end)
 
-
-Client.Subscribe("SpawnLocalPlayer", function(local_player)
-	local_player:Subscribe("Possess", function(player, character)
-		UpdateLocalCharacter(character)
-	end)
-end)
-
-
-Package.Subscribe("Load", function()
-	local local_player = Client.GetLocalPlayer()
-	if (local_player ~= nil) then
-		UpdateLocalCharacter(local_player:GetControlledCharacter())
-		local_player:Subscribe("Possess", function(player, character)
-			UpdateLocalCharacter(character)
-		end)
-	end
-end)
-
-
-function UpdateLocalCharacter(character)
-	if (character == nil) then
-    return
+Character.Subscribe("HealthChanged", function(char, old_health, new_health)
+  if (new_health < old_health) then
+    Sound(Vector(), "nanos-world::A_HitTaken_Feedback", true)
   end
 
-	UI:CallEvent("SetHealth", character:GetHealth())
+  UI:CallEvent("SetHealth", new_health)
+end)
 
-	character:Subscribe("HealthChanged", function(charac, old_health, new_health)
-		if (new_health < old_health) then
-			Sound(Vector(), "nanos-world::A_HitTaken_Feedback", true)
-		end
+-- Sets on character an event to update his grabbing weapon (to show ammo on UI)
+Character.Subscribe("PickUp", function(char, object)
+  if (object:GetType() == "Weapon") then
 
-		UI:CallEvent("SetHealth", new_health)
-	end)
-
-	local current_picked_item = character:GetPicked()
-
-	if (current_picked_item and current_picked_item:GetType() == "Weapon") then
     UI:CallEvent("ShowAmmo")
-    UI:CallEvent("SetActualAmmo", current_picked_item:GetAmmoClip())
-    UI:CallEvent("SetAmmoBag",current_picked_item:GetAmmoBag())
-	end
+    UI:CallEvent("SetActualAmmo", object:GetAmmoClip())
+    UI:CallEvent("SetAmmoBag",object:GetAmmoBag())
 
-	-- Sets on character an event to update his grabbing weapon (to show ammo on UI)
-	character:Subscribe("PickUp", function(charac, object)
-		if (object:GetType() == "Weapon") then
+    -- Subscribes on the weapon when the Ammo changes
+    object:Subscribe("AmmoClipChanged", OnAmmoClipChanged)
 
-      UI:CallEvent("ShowAmmo")
-      UI:CallEvent("SetActualAmmo", object:GetAmmoClip())
-      UI:CallEvent("SetAmmoBag",object:GetAmmoBag())
+    object:Subscribe("AmmoBag", OnAmmoBagChanged)
+  end
+end)
 
-			-- Subscribes on the weapon when the Ammo changes
-			object:Subscribe("AmmoClipChanged", OnAmmoClipChanged)
+-- Sets on character an event to remove the ammo ui when he drops it's weapon
+Character.Subscribe("Drop", function(char, object)
+  -- Unsubscribes from events
+  if (object:GetType() == "Weapon") then
+    UI:CallEvent("HideAmmo")
+    object:Unsubscribe("AmmoClipChanged", OnAmmoClipChanged)
+    object:Unsubscribe("AmmoBagChanged", OnAmmoBagChanged)
+  end
 
-			object:Subscribe("AmmoBag", OnAmmoBagChanged)
-		end
-	end)
-
-	-- Sets on character an event to remove the ammo ui when he drops it's weapon
-	character:Subscribe("Drop", function(charac, object)
-		-- Unsubscribes from events
-		if (object:GetType() == "Weapon") then
-      UI:CallEvent("HideAmmo")
-			object:Unsubscribe("AmmoClipChanged", OnAmmoClipChanged)
-			object:Unsubscribe("AmmoBagChanged", OnAmmoBagChanged)
-		end
-
-	end)
-end
+end)
 
 
 -- Callback when Weapon Ammo Clip changes

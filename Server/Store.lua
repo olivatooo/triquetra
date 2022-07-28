@@ -21,7 +21,7 @@ function SizeShop(player)
   if IsValid(char) then
     local scale = char:GetScale()
     scale = Vector((scale.X * 0.9), (scale.Y * 0.9), (scale.Z * 0.9))
-    Package.Log(scale)
+    --Package.Log(scale)
     char:SetScale(scale)
   end
 end
@@ -133,77 +133,10 @@ function SpawnHFG(location, rotation)
     return weapon
 end
 
-function SpawnSAT(location, rotation)
-    local weapon = Weapon(location or Vector(), rotation or Rotator(), "nanos-world::SK_DC15S")
-
-    weapon:SetAmmoSettings(33, 0)
-    weapon:SetDamage(0)
-    weapon:SetSpread(30)
-    weapon:SetSightTransform(Vector(-6, 0, -5), Rotator(0, 0, 0))
-    weapon:SetLeftHandTransform(Vector(19, 0, 5), Rotator(0, 60, 90))
-    weapon:SetRightHandOffset(Vector(-7, 0, -1))
-    weapon:SetHandlingMode(HandlingMode.DoubleHandedWeapon)
-    weapon:SetCadence(2)
-    weapon:SetSoundDry("nanos-world::A_Pistol_Dry")
-    weapon:SetSoundZooming("nanos-world::A_AimZoom")
-    weapon:SetSoundAim("nanos-world::A_Rattle")
-    weapon:SetSoundFire("nanos-world::A_VR_Click_01")
-    weapon:SetAnimationCharacterFire("nanos-world::AM_Mannequin_Sight_Fire")
-    weapon:SetParticlesBarrel("nanos-world::P_Weapon_BarrelSmoke")
-    weapon:SetCrosshairMaterial("nanos-world::MI_Crosshair_Square")
-    weapon:SetUsageSettings(true, false)
-
-    weapon:Subscribe("Fire", function(self, character)
-      local control_rotation = character:GetControlRotation()
-      local forward_vector = control_rotation:GetForwardVector()
-      local spawn_location = self:GetLocation() + forward_vector * 200
-
-      local grenade = Grenade(spawn_location, Rotator(), "nanos-world::SM_Grenade_G67", "nanos-world::P_Explosion_Dirt", "nanos-world::A_Explosion_Large")
-      grenade:SetScale(Vector(3, 3, 3))
-
-      local trail_particle = Particle(spawn_location, Rotator(), "nanos-world::P_Ribbon", false, true)
-      trail_particle:SetParameterColor("Color", Color.RandomPalette())
-      trail_particle:SetParameterFloat("LifeTime", 1)
-      trail_particle:SetParameterFloat("SpawnRate", 30)
-      trail_particle:SetParameterFloat("Width", 1)
-      trail_particle:AttachTo(grenade)
-      grenade:SetValue("Particle", trail_particle)
-      grenade:SetDamage(1, 1, 200, 1000, 1)
-      grenade:Subscribe("Hit", function(self, intensity)
-        local location = self:GetLocation()
-        for i=1,25 do
-          Timer.SetTimeout(function ()
-            local p = Prop(location + Vector(math.random(100), math.random(100), math.random(1000, 3000)), Rotator(), "nanos-world::SM_Sphere")
-            p:SetScale(Vector(math.random() + math.random(0, 1)))
-            p:SetMaterialColorParameter("Tint", Color.Random())
-
-            local trail_particle = Particle(spawn_location, Rotator(), "nanos-world::P_Ribbon", false, true)
-            trail_particle:SetParameterColor("Color", Color.RandomPalette())
-            trail_particle:SetParameterFloat("LifeTime", 5)
-            trail_particle:SetParameterFloat("SpawnRate", 30)
-            trail_particle:SetParameterFloat("Width", 1)
-            trail_particle:AttachTo(p)
-            p:SetLifeSpan(5)
-          end, math.random(1000))
-        end
-        self:Explode()
-      end)
-
-      grenade:Subscribe("Destroy", function(self, intensity)
-        self:GetValue("Particle"):SetLifeSpan(1)
-      end)
-
-      grenade:AddImpulse(forward_vector * 3000, true)
-    end)
-
-    return weapon
-end
-
 function GrenadeLauncherShop(player)
   local char = player:GetControlledCharacter()
   if IsValid(char) then
     local weapon = SpawnHFG(Vector(0,0,-10000), Rotator())
-    -- local weapon = SpawnSAT(Vector(0,0,-10000), Rotator())
 
     local pick = char:GetPicked()
     if IsValid(pick) then
@@ -323,11 +256,4 @@ Events.Subscribe("BuyItem", function (player, item, level)
     Events.CallRemote("ConfirmBuyItem", player, item, level)
   end
 end)
-
-function IsValid(obj)
-  if obj and obj:IsValid() then
-    return true
-  end
-  return false
-end
 
