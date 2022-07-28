@@ -3,9 +3,9 @@
     # package name
     name =                 "Triquetra"
     # contributors
-    author =               "olivato & maybe Voltaism?"
+    author =               "olivato & Voltaism"
     # version
-    version =              "0.0.1"
+    version =              "0.1.0"
     # image URL
     image =                ""
     # package type: 'script' (normal package), 'game-mode' (unique package - can only load one at a time), 'library' (doesn't start a Lua VM) or 'loading-screen' (special package for loading screen)
@@ -17,6 +17,7 @@
     # packages requirements
     packages_requirements = [
         "battlefield-kill-ui",
+        "rounds",
     ]
     # asset packs requirements
     assets_requirements = [

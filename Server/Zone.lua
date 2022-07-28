@@ -12,6 +12,10 @@ function Poison(character)
     end
     local poison = Timer.SetInterval(function(_character)
         _character:ApplyDamage(math.floor(33 - (Radius-500)/500))
+        if not _character:IsValid() then
+          Timer.ClearInterval(poison)
+          return
+        end
         if _character:GetHealth() <= 0 then
           Unpoison(character)
         end
@@ -53,18 +57,17 @@ end)
 -- ZoneEffect:SetMaterialColorParameter("Tint", Color(0, 1, 0))
 -- ZoneEffect:SetMaterial("nanos-world::M_NanosWireframe")
 
--- This is the round time in seconds, maps should not be larger so 2min should be enough
-RoundTime = 12000
+-- TODO: Obliterate this interval and switch to clientside
 Timer.SetInterval(function ()
   TheZone:SetExtent(Vector(Radius))
 
   -- Zone Effect this is a default sphere size
   -- BROKEN FOR NOW
   -- ZoneEffect:SetScale(Vector(Radius/50))
-  if Radius > 1 then
-    Radius = Radius - 1
+  if Radius > 100 then
+    Radius = Radius - 100
   end
-end, 1)
+end, 3000)
 
 function ResetRadius()
   Radius = OriginalRadius

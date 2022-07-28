@@ -1,3 +1,7 @@
+Package.RequirePackage("rounds")
+
+Package.Require("Sh_Funcs.lua")
+
 MyTeam = 1
 Money = 0
 UIDelay = 1000
@@ -14,13 +18,18 @@ Package.Require("GUI.lua")
 Package.Require("Zone.lua")
 
 
-Events.Subscribe("SpawnSound", function(location, sound_asset, is_2D, volume, pitch)
-	Sound(location, sound_asset, is_2D, true, SoundType.SFX, volume or 1, pitch or 1)
+Player.Subscribe("ValueChange", function(ply, key, value)
+  if ply == Client.GetLocalPlayer() then
+    if key == "PlayerTeam" then
+      if value then
+        MyTeam = value
+      end
+    end
+  end
 end)
 
-
-Events.Subscribe("SetTeam", function(team)
-  MyTeam = team
+Events.Subscribe("SpawnSound", function(location, sound_asset, is_2D, volume, pitch)
+	Sound(location, sound_asset, is_2D, true, SoundType.SFX, volume or 1, pitch or 1)
 end)
 
 UI:Subscribe("BuyItem", function(item, level)
@@ -112,7 +121,6 @@ Events.Subscribe("ClearPoints", function()
 end)
 
 Events.Subscribe("SetTime", function(hours)
-  Package.Log(hours)
   World.SetTime(hours, 0)
   World.SetSunSpeed(1)
 end)
@@ -124,6 +132,3 @@ Events.Subscribe("Prepare", function()
     UI:CallEvent("ResetStore")
   end, UIDelay)
 end)
-
-
-
