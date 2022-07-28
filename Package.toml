@@ -17,6 +17,7 @@
     # packages requirements
     packages_requirements = [
         "battlefield-kill-ui",
+        "rounds",
     ]
     # asset packs requirements
     assets_requirements = [
