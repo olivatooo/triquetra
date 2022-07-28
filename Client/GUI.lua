@@ -104,37 +104,41 @@ Events.Subscribe("OnGoing", function()
 end)
 
 Character.Subscribe("HealthChanged", function(char, old_health, new_health)
-  if (new_health < old_health) then
-    Sound(Vector(), "nanos-world::A_HitTaken_Feedback", true)
-  end
+  if (Client.GetLocalPlayer():GetControlledCharacter() and char == Client.GetLocalPlayer():GetControlledCharacter()) then
+    if (new_health < old_health) then
+      Sound(Vector(), "nanos-world::A_HitTaken_Feedback", true)
+    end
 
-  UI:CallEvent("SetHealth", new_health)
+    UI:CallEvent("SetHealth", new_health)
+  end
 end)
 
 -- Sets on character an event to update his grabbing weapon (to show ammo on UI)
 Character.Subscribe("PickUp", function(char, object)
-  if (object:GetType() == "Weapon") then
+  if (Client.GetLocalPlayer():GetControlledCharacter() and char == Client.GetLocalPlayer():GetControlledCharacter()) then
+    if (object:GetType() == "Weapon") then
 
-    UI:CallEvent("ShowAmmo")
-    UI:CallEvent("SetActualAmmo", object:GetAmmoClip())
-    UI:CallEvent("SetAmmoBag",object:GetAmmoBag())
+      UI:CallEvent("ShowAmmo")
+      UI:CallEvent("SetActualAmmo", object:GetAmmoClip())
+      UI:CallEvent("SetAmmoBag",object:GetAmmoBag())
 
-    -- Subscribes on the weapon when the Ammo changes
-    object:Subscribe("AmmoClipChanged", OnAmmoClipChanged)
+      -- Subscribes on the weapon when the Ammo changes
+      object:Subscribe("AmmoClipChanged", OnAmmoClipChanged)
 
-    object:Subscribe("AmmoBag", OnAmmoBagChanged)
+      object:Subscribe("AmmoBag", OnAmmoBagChanged)
+    end
   end
 end)
 
 -- Sets on character an event to remove the ammo ui when he drops it's weapon
 Character.Subscribe("Drop", function(char, object)
-  -- Unsubscribes from events
-  if (object:GetType() == "Weapon") then
-    UI:CallEvent("HideAmmo")
-    object:Unsubscribe("AmmoClipChanged", OnAmmoClipChanged)
-    object:Unsubscribe("AmmoBagChanged", OnAmmoBagChanged)
+  if (Client.GetLocalPlayer():GetControlledCharacter() and char == Client.GetLocalPlayer():GetControlledCharacter()) then
+    if (object:GetType() == "Weapon") then
+      UI:CallEvent("HideAmmo")
+      object:Unsubscribe("AmmoClipChanged", OnAmmoClipChanged)
+      object:Unsubscribe("AmmoBagChanged", OnAmmoBagChanged)
+    end
   end
-
 end)
 
 
